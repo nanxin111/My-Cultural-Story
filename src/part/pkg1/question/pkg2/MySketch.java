@@ -8,51 +8,86 @@ package part.pkg1.question.pkg2;
  * @author nanxinyu
  */
 import processing.core.PApplet;
+import processing.core.PImage;
+import java.util.ArrayList;
 
 public class MySketch extends PApplet {
-    private Car car1; // declare a car1 object
-    private Car car2;
-    private Car selectedCar = null;
+    private Nuwa nuwa;
+    private PImage bg;
+    private int collectedCount = 0;
+    private int stage = 0;
+    
+    float[] itemX = {100, 300, 500, 700, 400};
+    float[] itemY = {400, 350, 450, 300, 200};
+    boolean[] collected = {false, false, false, false, false};
     
     public void settings() {
-        size(400, 400);
+        size(800, 600);
     }
     
     public void setup() {
-        background(255); // set the background color to white
-        car1 = new Car(this, 50, 100, 2, "images/car.png");
-        car2 = new Car(this, 200, 200, 3, "images/car.png");
+        bg = loadImage("images/gold.png");
+        nuwa = new Nuwa(this, 50, 480, 5, "images/Nuwa.png");
+    }
+    
+    public void draw() {   
+        if (stage == 0) {
+            background(0);
+            fill(255);
+            textAlign(CENTER);
+            text("Nuwa Mends the Heavens\nPress ENTER to Start", width/2, height/2);
+        }
+        else if (stage == 1) {
+            image(bg, 0, 0, width, height);
+            
+            for (int i = 0; i < 5; i++) {
+                if (!collected[i]) {
+                    fill(255, 200, 0);
+                    ellipse(itemX[i], itemY[i], 20, 20);
+                    
+                    if (dist(nuwa.x, nuwa.y, itemX[i], itemY[i]) < 40) {
+                        collected[i] = true;
+                        collectedCount++;
+                    }
+                }
+            }
+            
+            fill(255, 100, 0, 150);
+            rect(700, 100, 80, 80);
+            fill(255);
+            textSize(15);
+            text("Altar", 750, 90);
+            
+            nuwa.updatePhysics();
+            nuwa.draw();
+        
+            if (keyPressed) {
+                if (keyCode == LEFT) nuwa.move(-1);
+                if (keyCode == RIGHT) nuwa.move(1);
+            }
+            
+            fill(255);
+            textSize(20);
+            text("Stones: " + collectedCount + " / 5", 100, 50);
+            
+            if (collectedCount == 5 && dist(nuwa.x, nuwa.y, 700, 100) < 60) {
+                stage = 2;
+            }
+        }
+        else if (stage == 2) {
+            background(0, 150, 255);
+            fill(255);
+            text("The Sky is Repaired!\nVictory!", width/2, height/2);
+        }
     }
     
     public void keyPressed() {
-        if (keyCode == LEFT) {
-            car1.move(-2, 0);
-        } else if (keyCode == RIGHT) {
-            car1.move(2, 0);
-        } else if (keyCode == UP) {
-            car1.move(0, -2);
-        } else if (keyCode == DOWN) {
-            car1.move(0, 2);
+        if (stage == 0 && keyCode == ENTER) {
+            stage = 1;
         }
-    }
-    
-    public void draw() {
-        background(255); // clear the screen
-        car1.draw();
-        car2.draw();
-            
-        if (selectedCar!= null) {
-            selectedCar.displayInfo(this);
-        }
-    }
-    
-    public void mousePressed() {
-        if (car1.isClicked(mouseX, mouseY)) {
-            selectedCar = car1;
-        } else if (car2.isClicked(mouseX, mouseY)) {
-            selectedCar = car2;
-        } else {
-            selectedCar = null;
+        
+        if (stage == 1 && keyCode == UP) {
+            nuwa.jump();
         }
     }
 }
