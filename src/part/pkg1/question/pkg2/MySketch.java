@@ -8,86 +8,123 @@ package part.pkg1.question.pkg2;
  * @author nanxinyu
  */
 import processing.core.PApplet;
-import processing.core.PImage;
-import java.util.ArrayList;
+import java.io.PrintWriter;
 
 public class MySketch extends PApplet {
-    private Nuwa nuwa;
-    private PImage bg;
-    private int collectedCount = 0;
-    private int stage = 0;
-    
-    float[] itemX = {100, 300, 500, 700, 400};
-    float[] itemY = {400, 350, 450, 300, 200};
-    boolean[] collected = {false, false, false, false, false};
+    Nuwa player;
+    float[][] stoneCoords = {
+        {100, 350}, 
+        {250, 200}, 
+        {400, 300},
+        {550, 150},
+        {700, 400}
+    };
+
+    boolean[] stoneCollected = new boolean[5];
+    int score = 0;
+    int gameState = 0;
     
     public void settings() {
         size(800, 600);
     }
     
     public void setup() {
-        bg = loadImage("images/gold.png");
-        nuwa = new Nuwa(this, 50, 480, 5, "images/Nuwa.png");
+        player = new Nuwa(this, 50, 450);
+        readGameRecord();
     }
     
-    public void draw() {   
-        if (stage == 0) {
-            background(0);
-            fill(255);
-            textAlign(CENTER);
-            text("Nuwa Mends the Heavens\nPress ENTER to Start", width/2, height/2);
+    public void draw() { 
+        background(255);
+        
+        if (gameState == 0) {
+            drawStartScreen();
+        } else if (gameState == 1) {
+            playGame();
+        } else if (gameState == 2) {
+            drawWinScreen();
         }
-        else if (stage == 1) {
-            image(bg, 0, 0, width, height);
+    }
+
+    public void drawStartScreen() {
+        background(0);
+        fill(255);
+        textSize(30);
+        textAlign(CENTER);
+        text("Nuwa's Adventure\nPress ENTER to Start", width / 2, height/2);
+    }
+
+    public void playGame() {
+        fill(100, 200, 100);
+        rect(0, 500, width, 100);
             
-            for (int i = 0; i < 5; i++) {
-                if (!collected[i]) {
-                    fill(255, 200, 0);
-                    ellipse(itemX[i], itemY[i], 20, 20);
+        for (int i = 0; i < stoneCoords.length; i++) {
+            if (!stoneCollected[i]) {
+                fill(255, 0, 0);
+                ellipse(stoneCoords[i][0], stoneCoords[i][1], 30, 30);
                     
-                    if (dist(nuwa.x, nuwa.y, itemX[i], itemY[i]) < 40) {
-                        collected[i] = true;
-                        collectedCount++;
-                    }
+                if (checkCollision(player.x, player.y, stoneCoords[i][0], stoneCoords[i][1]) && player.isActive) {
+                    stoneCollected[i] = true;
+                    score++;
                 }
             }
-            
-            fill(255, 100, 0, 150);
-            rect(700, 100, 80, 80);
-            fill(255);
-            textSize(15);
-            text("Altar", 750, 90);
-            
-            nuwa.updatePhysics();
-            nuwa.draw();
-        
-            if (keyPressed) {
-                if (keyCode == LEFT) nuwa.move(-1);
-                if (keyCode == RIGHT) nuwa.move(1);
-            }
-            
-            fill(255);
-            textSize(20);
-            text("Stones: " + collectedCount + " / 5", 100, 50);
-            
-            if (collectedCount == 5 && dist(nuwa.x, nuwa.y, 700, 100) < 60) {
-                stage = 2;
-            }
         }
-        else if (stage == 2) {
-            background(0, 150, 255);
-            fill(255);
-            text("The Sky is Repaired!\nVictory!", width/2, height/2);
+        
+        player.display();
+        fill(0);
+        textSize(20);
+        text("Stones: "+score+"/5", 80, 50);
+            
+        if (keyPressed) {
+            if (keyCode == LEFT) player.move(-1);
+            if (keyCode == RIGHT) player.move(1);
+        }
+            
+        if (score == 5) {
+            gameState = 2;
+            saveGameRecord();
+        }
+    }
+        
+    public void drawWinScreen() {
+        background(255, 215, 0);
+        fill(0);
+        text("YOU WON!\nSky Repaired!", width/2, height/2);
+    }
+    
+    
+    public boolean checkCollision(float px, float py, float sx, float sy) {
+        float distance=dist(px, py, sx, sy);
+        return distance<50;
+    }
+    
+    public void readGameRecord() {
+        try{
+            String[] lines=loadStrings("game-log.txt");
+            if (lines != null) {
+                println("Previous game log: "+lines[0]);
+            }
+        } catch (Exception e) {
+            println("No record found");
+        }
+    }
+    
+    public void saveGameRecord() {
+        try{
+            String[] data={"Game Completed at: "+hour()+":"+minute() };
+            saveStrings("game_log.txt", data);
+            println("Game saved!");
+        } catch (Exception e) {
+            println("Error saving file.");
         }
     }
     
     public void keyPressed() {
-        if (stage == 0 && keyCode == ENTER) {
-            stage = 1;
+        if (gameState == 0 && keyCode == ENTER) {
+            gameState = 1;
         }
         
-        if (stage == 1 && keyCode == UP) {
-            nuwa.jump();
+        if (gameState == 1 && keyCode == UP) {
+            player.jump();
         }
     }
 }

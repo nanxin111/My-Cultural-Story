@@ -11,19 +11,20 @@ import processing.core.PImage;
  *
  * @author nanxinyu
  */
-public class Nuwa {
-    public float x, y;
+public class Nuwa extends GameObject{
+    public static final float GRAVITY=0.6f;
     public float vy=0;
     private float speed;
-    private PApplet app;
     private PImage image;
     
-    public Nuwa(PApplet p, float x, float y, float speed, String imagePath) {
-        this.app=p;
-        this.x=x;
-        this.y=y;
+    public Nuwa(PApplet app, float x, float y, float speed) {
+        super(app,x ,y);
         this.speed=speed;
-        this.image=app.loadImage(imagePath);
+        this.image=app.loadImage("images/Nuwa.png");
+    }
+    
+    public Nuwa(PApplet app, float x, float y) {
+        this(app, x, y, 5);
     }
     
     public void move (int dir) {
@@ -35,16 +36,23 @@ public class Nuwa {
     }
     
     public void updatePhysics() {
-        vy += 0.5;
+        vy += GRAVITY;
         y += vy;
         
-        if (y > 480) {
-            y = 480;
+        if (y > 450) {
+            y = 450;
             vy = 0;
         }
     }
     
-    public void draw () {
-        app.image(image, x, y, 50, 80);
+    @Override
+    public void display () {
+        updatePhysics();
+        if (image != null && image.width > 0) {
+            app.image(image, x, y, 50, 80);
+        } else {
+            app.fill(255, 0, 255);
+            app.rect(x, y, 30, 50);
+        }
     }
 }
