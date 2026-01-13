@@ -13,6 +13,7 @@ import processing.core.PImage;
  */
 public class Nuwa extends GameObject{
     public static final float GRAVITY=0.6f;
+    public int health=3;
     public float vy=0;
     private float speed;
     private PImage image;
@@ -32,15 +33,25 @@ public class Nuwa extends GameObject{
     }
     
     public void jump() {
-        this.vy = -12;
+        if (vy == 0) {
+            this.vy = -12;
+        }
+    }
+    
+    public void takeDamage() {
+        health--;
+        x=50;
+        y=300;
+        vy=0;
     }
     
     public void updatePhysics() {
         vy += GRAVITY;
         y += vy;
         
-        if (y > 450) {
-            y = 450;
+        // 假设304是full-backround的地面高度
+        if (y > 304) {
+            y = 304;
             vy = 0;
         }
     }
@@ -49,7 +60,7 @@ public class Nuwa extends GameObject{
     public void display () {
         updatePhysics();
         if (image != null && image.width > 0) {
-            app.image(image, x, y, 50, 80);
+            app.image(image, x, y, 40, 60);
         } else {
             app.fill(255, 0, 255);
             app.rect(x, y, 30, 50);
