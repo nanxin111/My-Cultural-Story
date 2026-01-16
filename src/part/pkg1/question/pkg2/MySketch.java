@@ -163,7 +163,9 @@ public class MySketch extends PApplet {
             textAlign(CENTER);
             text("You've collected 5 elements. Now drag them to the sky hole\nto repair the world! Press ENTER to start.", width/2, 305);
         } else {
-            noFill(); stroke(255, 100);
+            noFill();
+            stroke(255, 200, 0);
+            strokeWeight(3);
             ellipse(holeX, holeY, 80, 80);
             
             int finishedCount=0;
@@ -187,11 +189,12 @@ public class MySketch extends PApplet {
     
     public void mousePressed() {
         if (gameState == 4 && !showDialog) {
+            // 倒序检测，确保点到的是最上面的图片
             for (int i=0; i<5; i++) {
                 if (mouseX > elementPos[i][0] && mouseX < elementPos[i][0]+50 &&
                     mouseY > elementPos[i][1] && mouseY < elementPos[i][1]+50) {
                     isDragging[i]=true;
-                    break;
+                    break;                
                 }
             }
         }
@@ -200,7 +203,7 @@ public class MySketch extends PApplet {
     public void mouseReleased() {
         if (gameState==4) {
             for (int i=0; i<5; i++) {
-                if (isDragging[1]) {
+                if (isDragging[i]) {
                     if (dist(elementPos[i][0]+25, elementPos[i][1]+25, holeX, holeY) < 60) {
                         isPlaced[i]=true;
                     }

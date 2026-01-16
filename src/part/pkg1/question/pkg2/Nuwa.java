@@ -49,7 +49,7 @@ public class Nuwa extends GameObject{
         vy += GRAVITY;
         y += vy;
         
-        // 假设304是full-backround的地面高度
+        // 假设230是full-backround的地面高度
         if (y > 230) {
             y = 230;
             vy = 0;
