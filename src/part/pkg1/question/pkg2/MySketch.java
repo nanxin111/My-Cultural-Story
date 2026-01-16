@@ -21,18 +21,21 @@ public class MySketch extends PApplet {
     PImage bgImg; // full-background.png
     PImage platformImg; // tile 1.png
     PImage enemyImg; // enemyImg.png
+    PImage doorImg;
+    PImage skyImg;
+    float doorX= 650, doorY=160;
     
     
     float[][] stoneCoords = {
-        {150, 280}, 
+        {150, 95}, 
         {300, 150}, 
         {450, 220},
         {600, 120},
-        {700, 280}
+        {700, 200}
     };
     
     float[][] platforms={
-        {280, 180}, {580, 150}, {120, 310}
+        {300, 180}, {580, 150}, {100, 130}, {370, 180}
     };
 
     boolean[] stoneCollected = new boolean[5];
@@ -47,12 +50,14 @@ public class MySketch extends PApplet {
         bgImg = loadImage("images/full-background.png");
         platformImg = loadImage("images/tile 1.png");
         enemyImg = loadImage("images/enemyImg.png");
+        doorImg = loadImage("images/door.png");
+        skyImg = loadImage("images/sky.png");
         
-        player = new Nuwa(this, 50, 304);
+        player = new Nuwa(this, 50, 230);
         
-        monsters[0]=new Monster(this, 280, 140, 50, enemyImg);
-        monsters[1]=new Monster(this, 580, 110, 60, enemyImg);
-        monsters[2]=new Monster(this, 400, 304, 100, enemyImg);
+        monsters[0]=new Monster(this, 335, 145, 50, enemyImg);
+        monsters[1]=new Monster(this, 615, 115, 50, enemyImg);
+        monsters[2]=new Monster(this, 135, 95, 50, enemyImg);
         
         readGameRecord();
     }
@@ -82,17 +87,24 @@ public class MySketch extends PApplet {
     public void playGame() {
         if (bgImg != null) {
             image(bgImg, 0, 0, width, height);
-        } else {
-            background(135, 206, 235);
         }
+        player.display();
         
         for (float[] p : platforms) {
             image(platformImg, p[0], p[1], 100, 20);
-            if (player.x + 20 > p[0] && player.x < p[0] + 100) {
-                if (player.y + 60 > p[1] && player.y + 60 < p[1] + 20 && player.vy > 0) {
+            if (player.x + 30 > p[0] && player.x < p[0] + 100) {
+                if (player.y + 60 > p[1] && player.y + 60 <= p[1] + 25 && player.vy > 0) {
                     player.y = p[1] - 60;
                     player.vy = 0;
                 }
+            }
+        }
+        
+        if (score >= 5) {
+            image(doorImg, doorX, doorY, 80, 100);
+            if (checkCollision(player.x, player.y, doorX+40, doorY+50, 50)) {
+                gameState=2;
+                saveGameRecord();
             }
         }
             
@@ -115,8 +127,6 @@ public class MySketch extends PApplet {
                 if (player.health <= 0) gameState = 3;
             }
         }
-        
-        player.display();
          
         // UI
         fill(255);

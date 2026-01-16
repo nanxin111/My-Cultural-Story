@@ -33,7 +33,7 @@ public class Nuwa extends GameObject{
     }
     
     public void jump() {
-        if (vy == 0) {
+        if (Math.abs(vy) < 0.2f) {
             this.vy = -12;
         }
     }
@@ -50,8 +50,8 @@ public class Nuwa extends GameObject{
         y += vy;
         
         // 假设304是full-backround的地面高度
-        if (y > 304) {
-            y = 304;
+        if (y > 230) {
+            y = 230;
             vy = 0;
         }
     }

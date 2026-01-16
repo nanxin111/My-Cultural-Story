@@ -10,7 +10,7 @@ import processing.core.PImage;
  * @author nanxinyu
  */
 public class Monster extends GameObject {
-    private float speed=2;
+    private float speed=1;
     private float leftBound, rightBound;
     private PImage img;
     
