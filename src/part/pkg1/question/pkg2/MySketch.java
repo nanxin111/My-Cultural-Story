@@ -23,9 +23,10 @@ public class MySketch extends PApplet {
     PImage enemyImg; // enemyImg.png
     PImage doorImg;
     PImage skyImg;
+    PImage dialogImg;
+    PImage[] elementImgs=new PImage[5]; // gold, wood, water, fire, earth
+    
     float doorX= 650, doorY=160;
-    
-    
     float[][] stoneCoords = {
         {150, 95}, 
         {300, 150}, 
@@ -33,12 +34,15 @@ public class MySketch extends PApplet {
         {600, 120},
         {700, 200}
     };
-    
     float[][] platforms={
         {300, 180}, {580, 150}, {100, 130}, {370, 180}
     };
-
     boolean[] stoneCollected = new boolean[5];
+    float[][] elementPos=new float[5][2];
+    boolean[] isDragging=new boolean[5];
+    boolean[] isPlaced=new boolean[5];
+    float holeX=384, holeY=100;
+    
     int score = 0;
     int gameState = 0; // 0=Start, 1=Play, 2=Win, 3=Game Over
     
@@ -52,6 +56,13 @@ public class MySketch extends PApplet {
         enemyImg = loadImage("images/enemyImg.png");
         doorImg = loadImage("images/door.png");
         skyImg = loadImage("images/sky.png");
+        dialogImg = loadImage("images/dialog box.png");
+        
+        elementImgs[0] = loadImage("images/gold.png");
+        elementImgs[1] = loadImage("images/wood.png");
+        elementImgs[2] = loadImage("images/water.png");
+        elementImgs[3] = loadImage("images/fire.png");
+        elementImgs[4] = loadImage("images/earth.png");
         
         player = new Nuwa(this, 50, 230);
         
@@ -59,16 +70,17 @@ public class MySketch extends PApplet {
         monsters[1]=new Monster(this, 615, 115, 50, enemyImg);
         monsters[2]=new Monster(this, 135, 95, 50, enemyImg);
         
+        resetElements();
         readGameRecord();
     }
     
     public void draw() { 
-        background(255);
-        
         if (gameState == 0) {
             drawStartScreen();
         } else if (gameState == 1) {
             playGame();
+        } else if (gameState == 4) {
+            repairSky();
         } else if (gameState == 2) {
             drawWinScreen();
         } else if (gameState == 3) {
@@ -99,20 +111,18 @@ public class MySketch extends PApplet {
                 }
             }
         }
-        
+        // 收集满5个彩石显示门
         if (score >= 5) {
             image(doorImg, doorX, doorY, 80, 100);
             if (checkCollision(player.x, player.y, doorX+40, doorY+50, 50)) {
-                gameState=2;
-                saveGameRecord();
+                gameState=4;
             }
         }
             
         for (int i = 0; i < stoneCoords.length; i++) {
             if (!stoneCollected[i]) {
                 fill(0, 200, 255);
-                ellipse(stoneCoords[i][0], stoneCoords[i][1], 20, 20);
-                    
+                ellipse(stoneCoords[i][0], stoneCoords[i][1], 20, 20);   
                 if (checkCollision(player.x, player.y, stoneCoords[i][0], stoneCoords[i][1], 40)) {
                     stoneCollected[i] = true;
                     score++;
@@ -140,10 +150,88 @@ public class MySketch extends PApplet {
             if (keyCode == LEFT) player.move(-1);
             if (keyCode == RIGHT) player.move(1);
         }
+    }
+    
+    private boolean showDialog=true;
+    public void repairSky() {
+        image(skyImg, 0, 0, width, height);
         
-        if (score == 5) {
-            gameState=2;
-            saveGameRecord();
+        if (showDialog) {
+            image(dialogImg, 100, 250, 568, 100);
+            fill(0);
+            textSize(16);
+            textAlign(CENTER);
+            text("You've collected 5 elements. Now drag them to the sky hole\nto repair the world! Press ENTER to start.", width/2, 305);
+        } else {
+            noFill(); stroke(255, 100);
+            ellipse(holeX, holeY, 80, 80);
+            
+            int finishedCount=0;
+            for (int i=0; i<5; i++) {
+                if (isDragging[i]) {
+                    elementPos[i][0]=mouseX-25;
+                    elementPos[i][1]=mouseY-25;
+                }
+                if (!isPlaced[i]) {
+                    image(elementImgs[i], elementPos[i][0], elementPos[i][1], 50, 50);
+                } else {
+                    finishedCount++;
+                }
+            }
+            if (finishedCount == 5) {
+                gameState=2;
+                saveGameRecord();
+            }
+        }
+    }
+    
+    public void mousePressed() {
+        if (gameState == 4 && !showDialog) {
+            for (int i=0; i<5; i++) {
+                if (mouseX > elementPos[i][0] && mouseX < elementPos[i][0]+50 &&
+                    mouseY > elementPos[i][1] && mouseY < elementPos[i][1]+50) {
+                    isDragging[i]=true;
+                    break;
+                }
+            }
+        }
+    }
+    
+    public void mouseReleased() {
+        if (gameState==4) {
+            for (int i=0; i<5; i++) {
+                if (isDragging[1]) {
+                    if (dist(elementPos[i][0]+25, elementPos[i][1]+25, holeX, holeY) < 60) {
+                        isPlaced[i]=true;
+                    }
+                    isDragging[i]=false;
+                }
+            }
+        }
+    }
+    
+    public void keyPressed() {
+        if (keyCode==UP && gameState == 1) player.jump();
+        if (keyCode == ENTER) {
+            if (gameState==0) gameState=1;
+            else if (gameState==3) resetGame();
+            else if (gameState == 4 && showDialog) showDialog=false;
+        }
+    }
+    
+    public void resetGame() {
+        gameState=1; score=0; showDialog=true;
+        player.health=3; player.x=50; player.y=230;
+        for (int i=0; i<5; i++) stoneCollected[i]=false;
+        resetElements();
+    }
+    
+    private void resetElements() {
+        for (int i=0; i<5; i++) {
+            elementPos[i][0]=150 + i * 110;
+            elementPos[i][1]=300;
+            isPlaced[i]=false;
+            isDragging[i]=false;
         }
     }
         
@@ -193,27 +281,6 @@ public class MySketch extends PApplet {
             println("Game saved successfully.");
         } catch (IOException e) {
             println("Error saving file: "+e.getMessage());
-        }
-    }
-    
-    public void keyPressed() {
-        if (keyCode == UP && gameState == 1) {
-            player.jump();
-        }
-        if (keyCode == ENTER) {
-            if (gameState==0) gameState=1;
-            else if (gameState==3) resetGame();
-        }
-    }
-    
-    public void resetGame() {
-        gameState=1;
-        score=0;
-        player.health=3;
-        player.x=50;
-        player.y=304;
-        for (int i=0; i<5; i++) {
-            stoneCollected[i]=false;
         }
     }
 }
