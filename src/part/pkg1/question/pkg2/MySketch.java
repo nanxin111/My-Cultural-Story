@@ -47,7 +47,10 @@ public class MySketch extends PApplet {
     };
     // Platforms Coordinates
     private float[][] platforms={
-        {300, 180}, {580, 150}, {100, 130}, {370, 180}
+        {300, 180}, 
+        {580, 150}, 
+        {100, 130}, 
+        {370, 180}
     };
     private boolean[] stoneCollected = new boolean[5]; // Whether the colored stones have been collected.
     private float[][] elementPos=new float[5][2]; // Current position of element
