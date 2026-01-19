@@ -1,0 +1,32 @@
+Long ago, the sky was torn apart, and chaos spread across the world.
+Floods and fire threatened all living beings, and the balance of nature was broken.
+You play as Nüwa, a goddess who takes responsibility for restoring harmony.
+To repair the sky, you must travel through dangerous lands, overcome obstacles, and collect the five-colored stones.
+Each stone represents one of the five elements of the universe:
+Metal, Wood, Water, Fire, and Earth.
+Only by gathering all five elements and placing them back into the sky can balance be restored and the world healed.
+
+
+- Use the LEFT and RIGHT arrow keys to move Nüwa.
+- Press UP to jump onto platforms.
+- Avoid monsters, or you will lose health.
+- Collect all five-colored stones hidden throughout the level.
+- Once all stones are collected, a door will appear.
+- Enter the door to reach the Sky Repair Stage.
+- In the final stage, drag and place each elemental stone into the broken sky.
+- When all five stones are placed correctly, the sky will be repaired, and you will win the game.
+
+
+You've collected 5 elements. Now drag them to the sky hole
+to repair the world! Press ENTER to continue...
+
+
+With the five-colored stones returned to the sky, balance is restored.
+The opening in the sky slowly closes, and calm returns to the world.
+Floods recede, fires fade, and life begins to flourish once more.
+The land breathes again, not because of force, but because of care and perseverance.
+Nüwa’s journey comes to an end, but the lesson remains.
+Harmony is not something that happens on its own.
+It is created through responsibility, patience, and respect for the natural world.
+You have helped restore balance.
+The world endures because of your actions.
