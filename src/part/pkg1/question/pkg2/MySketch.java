@@ -21,6 +21,7 @@ import java.io.IOException;
  * @author nanxinyu
  */
 public class MySketch extends PApplet {
+    private GameObject[] allActors = new GameObject[4]; // 定义一个统一的父类数组，大小为 4 (1个玩家 + 3个怪物)
     private Nuwa player;
     private Monster[] monsters=new Monster[3];
     // Images
@@ -92,10 +93,15 @@ public class MySketch extends PApplet {
         elementImgs[4] = loadImage("images/earth.png");
         // Create Player
         player = new Nuwa(this, 50, 230);
+        allActors[0] = player; // Upcasting: Nuwa stores the data in a GameObject array.
         // Create enemies
         monsters[0]=new Monster(this, 335, 145, 50, enemyImg);
         monsters[1]=new Monster(this, 615, 115, 50, enemyImg);
         monsters[2]=new Monster(this, 135, 95, 50, enemyImg);
+        // Store monsters in a unified array.
+        allActors[1] = monsters[0];
+        allActors[2] = monsters[1];
+        allActors[3] = monsters[2];
         
         resetElements(); // Initialize element position
         loadDialogFromFile(); // Read dialogue text at startup
@@ -149,7 +155,13 @@ public class MySketch extends PApplet {
      */
     public void playGame() {
         image(bgImg, 0, 0, width, height); // background
-        player.display(); // display player
+        // 遍历数组，不管它是玩家还是怪物，直接调用 display()
+        for (GameObject actor : allActors) {
+            actor.display();
+            // 运行原理：
+            // 如果 actor 是 Nuwa，会自动运行 updatePhysics() + 画 Nuwa
+            // 如果 actor 是 Monster，会自动运行 moveAI() + 画 Monster
+        }
         // Detect whether the player has fallen onto the platform from above; if so, let the player stand on the platform.
         // 检测玩家是否从上方落到平台上，如果是，就让玩家站在平台上。
         for (float[] p : platforms) {
@@ -164,6 +176,16 @@ public class MySketch extends PApplet {
                 }
             }
         }
+        
+        // 遍历在 setup 中创建的 monsters 数组（里面有 3 个 Monster 对象）。
+        for (Monster m : monsters) {
+            // 如果玩家中心和怪物中心的距离小于 35 像素，判定为“撞上了”。
+            if (checkCollision(player.x, player.y, m.x, m.y, 35)) {
+                player.takeDamage(); // 调用了Nuwa.java里的takeDamage()方法
+                if (player.health <= 0) gameState = 3; // 没命就GameOver
+            }
+        }
+        
         // The door will appear after collecting 5 colored stones.
         // 收集满5个彩石显示门
         if (score >= 5) {
@@ -185,15 +207,6 @@ public class MySketch extends PApplet {
                     stoneCollected[i] = true; // The stone will not be drawn in the next frame.
                     score++;
                 }
-            }
-        }
-        // 遍历在 setup 中创建的 monsters 数组（里面有 3 个 Monster 对象）。
-        for (Monster m : monsters) {
-            m.display(); // 调用了 Monster.java 里的 display() 方法，在 Monster 类中，display() 内部先调用了 moveAI()
-            // 如果玩家中心和怪物中心的距离小于 35 像素，判定为“撞上了”。
-            if (checkCollision(player.x, player.y, m.x, m.y, 35)) {
-                player.takeDamage(); // 调用了Nuwa.java里的takeDamage()方法
-                if (player.health <= 0) gameState = 3; // 没命就GameOver
             }
         }
          
